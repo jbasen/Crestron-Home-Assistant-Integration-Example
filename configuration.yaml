@@ -1,0 +1,49 @@
+# Loads default set of integrations. Do not remove.
+default_config:
+
+# Load frontend themes from the themes folder
+frontend:
+  themes: !include_dir_merge_named themes
+
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+
+crestron:
+  port: 9000
+  to_joins:
+# joins for switch feedback
+    - join: d12
+      entity_id: switch.smart_plug_switch
+# joins for lock feedback
+    - join: d15
+      value_template: "{{ is_state('lock.aqara_smart_lock_u200_lock', 'locked') }}"
+# joins for WeatherFlow Tempest Data
+    - join: a1
+      entity_id: sensor.st_00113935_temperature
+    - join: s2
+      entity_id: sensor.st_00113935_temperature
+      attribute: unit_of_measurement
+  from_joins:
+# joins for switch control
+    - join: d10
+      script:
+        service: switch.turn_on
+        target:
+          entity_id: switch.smart_plug_switch
+    - join: d11
+      script:
+        service: switch.turn_off
+        target:
+          entity_id: switch.smart_plug_switch
+# joins for lock control
+    - join: d14
+      script:
+        service: lock.lock
+        target:
+          entity_id: lock.aqara_smart_lock_u200_lock
+    - join: d15
+      script:
+        service: lock.unlock
+        target:
+          entity_id: lock.aqara_smart_lock_u200_lock
